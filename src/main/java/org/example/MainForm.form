@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="8e24c" class="javax.swing.JButton" binding="searchButton">
+      <component id="8e24c" class="javax.swing.JButton" binding="addVehicle">
         <constraints>
           <grid row="5" column="0" row-span="3" col-span="6" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

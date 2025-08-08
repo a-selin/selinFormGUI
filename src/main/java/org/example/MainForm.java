@@ -9,6 +9,9 @@ import java.util.ArrayList;
 
 
 public class MainForm extends JFrame {
+    private JButton addVehicle;
+    private JButton removeVehicle;
+    private JButton viewSlots;
     private JButton searchButton;
     private JPanel panel1;
     private JLabel labelName;
@@ -31,6 +34,7 @@ public class MainForm extends JFrame {
         setLocationRelativeTo(null);
 
         Font biggerFont = new Font("Arial", Font.BOLD, 20);
+        Font welcomeFont = new Font("Arial", Font.BOLD, 25);
 
         timeLabel = new JLabel();
         timeLabel.setBounds(600,450,300,25);
@@ -39,49 +43,49 @@ public class MainForm extends JFrame {
         panel1.add(timeLabel);
 
 
-        labelTitle = new JLabel("Hoşgeldiniz, lütfen adınızı ve plaka numaranızı giriniz.");
-        labelTitle.setBounds(60, 30, 600, 50);
-        labelTitle.setFont(biggerFont);
+        labelTitle = new JLabel("Welcome, user.");
+        labelTitle.setBounds(300, 60, 600, 50);
+        labelTitle.setFont(welcomeFont);
         panel1.add(labelTitle);
         labelTitle.setForeground(Color.BLACK);
 
-        labelName = new JLabel("Enter name: ");
-        labelName.setBounds(60, 120, 200, 50);
-        labelName.setFont(biggerFont);
-        panel1.add(labelName);
-        labelName.setForeground(Color.BLACK);
-
-        nameField = new JTextField();
-        nameField.setBounds(280, 120, 400, 50);
-        nameField.setFont(biggerFont);
-        panel1.add(nameField);
-        nameField.setBackground(new Color(188,211,105));
-        nameField.setForeground(Color.BLACK);
-
         labelPlate = new JLabel("Enter Plate:");
-        labelPlate.setBounds(60, 200, 200, 50);
+        labelPlate.setBounds(45, 150, 200, 50);
         labelPlate.setFont(biggerFont);
         panel1.add(labelPlate);
         labelPlate.setForeground(Color.BLACK);
 
         plateField = new JTextField();
-        plateField.setBounds(280, 200, 400, 50);
+        plateField.setBounds(170, 150, 415, 50);
         plateField.setFont(biggerFont);
         panel1.add(plateField);
         plateField.setBackground(new Color(188,211,105));
         plateField.setForeground(Color.BLACK);
 
-        searchButton = new JButton("Ekle");
-        searchButton.setBounds(280, 300, 200, 60);
-        searchButton.setFont(biggerFont);
+        addVehicle = new JButton("Add Vehicle");
+        addVehicle.setBounds(170, 250, 200, 60);
+        addVehicle.setFont(biggerFont);
+        panel1.add(addVehicle);
+        addVehicle.setBackground(new Color(188,211,105));
+
+        removeVehicle = new JButton("Remove Vehicle");
+        removeVehicle.setBounds(385, 250, 200, 60);
+        removeVehicle.setFont(biggerFont);
+        panel1.add(removeVehicle);
+        removeVehicle.setBackground(new Color(188,211,105));
+
+        viewSlots = new JButton("View Slots");
+        viewSlots.setBounds(170, 320, 415, 60);
+        viewSlots.setFont(biggerFont);
+        panel1.add(viewSlots);
+        viewSlots.setBackground(new Color(188,211,105));
+
+        searchButton=new JButton("Search");
+        searchButton.setBounds(600, 150, 100, 50);
+        searchButton.setFont(new Font("Arial", Font.ITALIC, 17));
         panel1.add(searchButton);
         searchButton.setBackground(new Color(188,211,105));
 
-        eventLabel = new JLabel(" Events: ");
-        eventLabel.setBounds(60, 400, 600, 50);
-        eventLabel.setFont(biggerFont);
-        panel1.add(eventLabel);
-        eventLabel.setForeground(Color.BLACK);
 
         Timer clockTimer = new Timer(1000, new ActionListener() {
             @Override
@@ -94,14 +98,14 @@ public class MainForm extends JFrame {
         clockTimer.start();
 
 
-        searchButton.addActionListener(new ActionListener() {
+        addVehicle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 eventLabel.setText("Butona tıklandı ve text değeri eklendi");
             }
         });
 
-        searchButton.addActionListener(new ActionListener() {
+        addVehicle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String name = nameField.getText();

@@ -6,15 +6,17 @@ import java.awt.event.ActionListener;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
-
+import java.io.*;
 
 public class MainForm extends JFrame {
+    private static final String FILE_PATH = "vehicles.txt";
+
+    private JButton addVehicle;
+    private JButton removeVehicle;
+    private JButton viewSlots;
     private JButton searchButton;
     private JPanel panel1;
-    private JLabel labelName;
     private JLabel labelPlate;
-    private JLabel eventLabel;
-    private JTextField nameField;
     private JTextField plateField;
     private JLabel labelTitle;
     private JLabel timeLabel;
@@ -26,100 +28,178 @@ public class MainForm extends JFrame {
         panel1 = new JPanel();
         setContentPane(panel1);
         panel1.setLayout(null);
-        panel1.setBackground(new Color(142,99,217));
+        panel1.setBackground(new Color(142, 99, 217));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         Font biggerFont = new Font("Arial", Font.BOLD, 20);
+        Font welcomeFont = new Font("Arial", Font.BOLD, 25);
 
         timeLabel = new JLabel();
-        timeLabel.setBounds(600,450,300,25);
+        timeLabel.setBounds(600, 450, 300, 25);
         timeLabel.setForeground(Color.BLACK);
         timeLabel.setFont(new Font("Arial", Font.BOLD, 20));
         panel1.add(timeLabel);
 
-
-        labelTitle = new JLabel("Hoşgeldiniz, lütfen adınızı ve plaka numaranızı giriniz.");
-        labelTitle.setBounds(60, 30, 600, 50);
-        labelTitle.setFont(biggerFont);
-        panel1.add(labelTitle);
+        labelTitle = new JLabel("Welcome, user.");
+        labelTitle.setBounds(300, 60, 600, 50);
+        labelTitle.setFont(welcomeFont);
         labelTitle.setForeground(Color.BLACK);
-
-        labelName = new JLabel("Enter name: ");
-        labelName.setBounds(60, 120, 200, 50);
-        labelName.setFont(biggerFont);
-        panel1.add(labelName);
-        labelName.setForeground(Color.BLACK);
-
-        nameField = new JTextField();
-        nameField.setBounds(280, 120, 400, 50);
-        nameField.setFont(biggerFont);
-        panel1.add(nameField);
-        nameField.setBackground(new Color(188,211,105));
-        nameField.setForeground(Color.BLACK);
+        panel1.add(labelTitle);
 
         labelPlate = new JLabel("Enter Plate:");
-        labelPlate.setBounds(60, 200, 200, 50);
+        labelPlate.setBounds(45, 150, 200, 50);
         labelPlate.setFont(biggerFont);
-        panel1.add(labelPlate);
         labelPlate.setForeground(Color.BLACK);
+        panel1.add(labelPlate);
 
         plateField = new JTextField();
-        plateField.setBounds(280, 200, 400, 50);
+        plateField.setBounds(170, 150, 415, 50);
         plateField.setFont(biggerFont);
-        panel1.add(plateField);
-        plateField.setBackground(new Color(188,211,105));
+        plateField.setBackground(new Color(188, 211, 105));
         plateField.setForeground(Color.BLACK);
+        panel1.add(plateField);
 
-        searchButton = new JButton("Ekle");
-        searchButton.setBounds(280, 300, 200, 60);
-        searchButton.setFont(biggerFont);
+        addVehicle = new JButton("Add Vehicle");
+        addVehicle.setBounds(170, 250, 200, 60);
+        addVehicle.setFont(biggerFont);
+        addVehicle.setBackground(new Color(188, 211, 105));
+        panel1.add(addVehicle);
+
+        removeVehicle = new JButton("Remove Vehicle");
+        removeVehicle.setBounds(385, 250, 200, 60);
+        removeVehicle.setFont(biggerFont);
+        removeVehicle.setBackground(new Color(188, 211, 105));
+        panel1.add(removeVehicle);
+
+        viewSlots = new JButton("View Slots");
+        viewSlots.setBounds(170, 320, 415, 60);
+        viewSlots.setFont(biggerFont);
+        viewSlots.setBackground(new Color(188, 211, 105));
+        panel1.add(viewSlots);
+
+        searchButton = new JButton("Search");
+        searchButton.setBounds(600, 150, 100, 50);
+        searchButton.setFont(new Font("Arial", Font.ITALIC, 17));
+        searchButton.setBackground(new Color(188, 211, 105));
         panel1.add(searchButton);
-        searchButton.setBackground(new Color(188,211,105));
 
-        eventLabel = new JLabel(" Events: ");
-        eventLabel.setBounds(60, 400, 600, 50);
-        eventLabel.setFont(biggerFont);
-        panel1.add(eventLabel);
-        eventLabel.setForeground(Color.BLACK);
+        // Dosyadan plakaları oku program açılırken
+        vehicleList = readPlatesFromFile();
 
-        Timer clockTimer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                java.time.LocalTime now = java.time.LocalTime.now();
-                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
-                timeLabel.setText("Saat: " + now.format(formatter));
-            }
+        // Saat göstergesi
+        Timer clockTimer = new Timer(1000, e -> {
+            java.time.LocalTime now = java.time.LocalTime.now();
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+            timeLabel.setText("Saat: " + now.format(formatter));
         });
         clockTimer.start();
 
-
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                eventLabel.setText("Butona tıklandı ve text değeri eklendi");
+        // Add Vehicle butonu
+        addVehicle.addActionListener(e -> {
+            String plate = plateField.getText().trim();
+            if (!plate.isEmpty()) {
+                vehicleList.add(plate);
+                savePlateToFile(plate);
+                plateField.setText("");
             }
         });
 
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String name = nameField.getText();
-                String plate = plateField.getText();
-
-                if (!name.isEmpty() && !plate.isEmpty()) {
-                    vehicleList.add(name + " - " + plate);
-                    eventLabel.setText("Butona tıklandı ve araç eklendi");
-                    new VehicleListForm(vehicleList);
-                } else {
-                    eventLabel.setText("Lütfen tüm alanları doldurun.");
-                }
+        // Remove Vehicle butonu
+        removeVehicle.addActionListener(e -> {
+            String plate = plateField.getText().trim();
+            if (plate.isEmpty()) {
+                return; // boşsa çık
+            }
+            boolean removed = removePlateFromFile(plate);
+            if (removed) {
+                vehicleList = readPlatesFromFile(); // listeyi güncelle
             }
         });
+
+        // View Slots butonu
+        viewSlots.addActionListener(e -> {
+            ArrayList<String> list = readPlatesFromFile();
+            showVehicleList(list);
+        });
+
+        // Search butonu (işlevi sade)
+        searchButton.addActionListener(e -> {
+            String plate = plateField.getText().trim();
+            if (plate.isEmpty()) return;
+
+            ArrayList<String> list = readPlatesFromFile();
+            boolean found = list.stream().anyMatch(s -> s.equalsIgnoreCase(plate));
+            // Bulduysa veya bulamadıysa kullanıcıya mesaj verme (isteğe bağlı)
+        });
+
         setVisible(true);
     }
 
+    // Dosyaya plakayı ekle (append)
+    private void savePlateToFile(String plate) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+            bw.write(plate);
+            bw.newLine();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            // İstersen hata mesajı gösterebilirsin
+        }
+    }
+
+    // Dosyadan plakaları oku
+    private ArrayList<String> readPlatesFromFile() {
+        ArrayList<String> list = new ArrayList<>();
+        File f = new File(FILE_PATH);
+        if (!f.exists()) {
+            return list;
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    list.add(line.trim());
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    // Dosyadan plaka sil (büyük/küçük harf duyarsız)
+    private boolean removePlateFromFile(String plate) {
+        ArrayList<String> list = readPlatesFromFile();
+        boolean removed = list.removeIf(s -> s.equalsIgnoreCase(plate));
+        if (removed) {
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
+                for (String s : list) {
+                    bw.write(s);
+                    bw.newLine();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return removed;
+    }
+
+    // Listeyi yeni pencerede göster
+    private void showVehicleList(ArrayList<String> list) {
+        JFrame f = new JFrame("Vehicle List");
+        f.setSize(400, 400);
+        f.setLocationRelativeTo(this);
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (String s : list) {
+            model.addElement(s);
+        }
+        JList<String> jList = new JList<>(model);
+        JScrollPane sp = new JScrollPane(jList);
+        f.add(sp);
+        f.setVisible(true);
+    }
+
     public static void main(String[] args) {
-        new MainForm();
+        SwingUtilities.invokeLater(MainForm::new);
     }
 }

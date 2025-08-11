@@ -1,12 +1,11 @@
 package org.example;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
+import java.awt.event.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-
 
 public class MainForm extends JFrame {
     private JButton addVehicle;
@@ -42,7 +41,6 @@ public class MainForm extends JFrame {
         timeLabel.setFont(new Font("Arial", Font.BOLD, 20));
         panel1.add(timeLabel);
 
-
         labelTitle = new JLabel("Welcome, user.");
         labelTitle.setBounds(300, 60, 600, 50);
         labelTitle.setFont(welcomeFont);
@@ -58,9 +56,9 @@ public class MainForm extends JFrame {
         plateField = new JTextField();
         plateField.setBounds(170, 150, 415, 50);
         plateField.setFont(biggerFont);
-        panel1.add(plateField);
         plateField.setBackground(new Color(188,211,105));
         plateField.setForeground(Color.BLACK);
+        panel1.add(plateField);
 
         addVehicle = new JButton("Add Vehicle");
         addVehicle.setBounds(170, 250, 200, 60);
@@ -80,46 +78,56 @@ public class MainForm extends JFrame {
         panel1.add(viewSlots);
         viewSlots.setBackground(new Color(188,211,105));
 
-        searchButton=new JButton("Search");
+        searchButton = new JButton("Search");
         searchButton.setBounds(600, 150, 100, 50);
         searchButton.setFont(new Font("Arial", Font.ITALIC, 17));
         panel1.add(searchButton);
         searchButton.setBackground(new Color(188,211,105));
 
+        eventLabel = new JLabel("");
+        eventLabel.setBounds(45, 350, 500, 30);
+        eventLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        eventLabel.setForeground(Color.BLACK);
+        panel1.add(eventLabel);
 
-        Timer clockTimer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                java.time.LocalTime now = java.time.LocalTime.now();
-                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
-                timeLabel.setText("Saat: " + now.format(formatter));
-            }
+        Timer clockTimer = new Timer(1000, e -> {
+            java.time.LocalTime now = java.time.LocalTime.now();
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+            timeLabel.setText("Saat: " + now.format(formatter));
         });
         clockTimer.start();
 
+        addVehicle.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String plate = plateField.getText().trim();
 
-        addVehicle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                eventLabel.setText("Butona tıklandı ve text değeri eklendi");
+            if (!name.isEmpty() && !plate.isEmpty()) {
+                LocalDate today = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+                String formattedDate = today.format(formatter);
+                vehicleList.add(name + " - " + plate + " - " + formattedDate);
+                eventLabel.setText("Araç eklendi: " + name + " - " + plate + " - " + formattedDate);
+
+            } else {
+                eventLabel.setText("Lütfen tüm alanları doldurun.");
             }
         });
 
-        addVehicle.addActionListener(new ActionListener() {
+        SearchPanel searchPanel = new SearchPanel(vehicleList);
+        searchPanel.setBounds(20, 400, 750, 150);
+        panel1.add(searchPanel);
+
+        int shortcutKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_S, shortcutKey), "saveAction");
+
+        this.getRootPane().getActionMap().put("saveAction", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name = nameField.getText();
-                String plate = plateField.getText();
-
-                if (!name.isEmpty() && !plate.isEmpty()) {
-                    vehicleList.add(name + " - " + plate);
-                    eventLabel.setText("Butona tıklandı ve araç eklendi");
-                    new VehicleListForm(vehicleList);
-                } else {
-                    eventLabel.setText("Lütfen tüm alanları doldurun.");
-                }
+                searchPanel.saveToFile();
             }
         });
+
         setVisible(true);
     }
 

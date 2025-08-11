@@ -84,10 +84,10 @@ public class MainForm extends JFrame {
         searchButton.setBackground(new Color(188, 211, 105));
         panel1.add(searchButton);
 
-        // Dosyadan plakaları oku program açılırken
+
         vehicleList = readPlatesFromFile();
 
-        // Saat göstergesi
+
         Timer clockTimer = new Timer(1000, e -> {
             java.time.LocalTime now = java.time.LocalTime.now();
             java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -95,7 +95,7 @@ public class MainForm extends JFrame {
         });
         clockTimer.start();
 
-        // Add Vehicle butonu
+
         addVehicle.addActionListener(e -> {
             String plate = plateField.getText().trim();
             if (!plate.isEmpty()) {
@@ -105,49 +105,49 @@ public class MainForm extends JFrame {
             }
         });
 
-        // Remove Vehicle butonu
+
         removeVehicle.addActionListener(e -> {
             String plate = plateField.getText().trim();
             if (plate.isEmpty()) {
-                return; // boşsa çık
+                return;
             }
             boolean removed = removePlateFromFile(plate);
             if (removed) {
-                vehicleList = readPlatesFromFile(); // listeyi güncelle
+                vehicleList = readPlatesFromFile();
             }
         });
 
-        // View Slots butonu
+
         viewSlots.addActionListener(e -> {
             ArrayList<String> list = readPlatesFromFile();
             showVehicleList(list);
         });
 
-        // Search butonu (işlevi sade)
+
         searchButton.addActionListener(e -> {
             String plate = plateField.getText().trim();
             if (plate.isEmpty()) return;
 
             ArrayList<String> list = readPlatesFromFile();
             boolean found = list.stream().anyMatch(s -> s.equalsIgnoreCase(plate));
-            // Bulduysa veya bulamadıysa kullanıcıya mesaj verme (isteğe bağlı)
+
         });
 
         setVisible(true);
     }
 
-    // Dosyaya plakayı ekle (append)
+
     private void savePlateToFile(String plate) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             bw.write(plate);
             bw.newLine();
         } catch (IOException ex) {
             ex.printStackTrace();
-            // İstersen hata mesajı gösterebilirsin
+
         }
     }
 
-    // Dosyadan plakaları oku
+
     private ArrayList<String> readPlatesFromFile() {
         ArrayList<String> list = new ArrayList<>();
         File f = new File(FILE_PATH);
@@ -167,7 +167,7 @@ public class MainForm extends JFrame {
         return list;
     }
 
-    // Dosyadan plaka sil (büyük/küçük harf duyarsız)
+
     private boolean removePlateFromFile(String plate) {
         ArrayList<String> list = readPlatesFromFile();
         boolean removed = list.removeIf(s -> s.equalsIgnoreCase(plate));
@@ -184,7 +184,7 @@ public class MainForm extends JFrame {
         return removed;
     }
 
-    // Listeyi yeni pencerede göster
+
     private void showVehicleList(ArrayList<String> list) {
         JFrame f = new JFrame("Vehicle List");
         f.setSize(400, 400);

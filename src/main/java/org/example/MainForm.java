@@ -1,9 +1,12 @@
 package org.example;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.ArrayList;
+import java.io.*;
 
 public class MainForm extends JFrame {
     private static final String FILE_PATH = "vehicles.txt";
@@ -81,67 +84,10 @@ public class MainForm extends JFrame {
         searchButton.setBackground(new Color(188, 211, 105));
         panel1.add(searchButton);
 
-        JToolBar toolBar = new JToolBar();
-
-        JMenuItem view = new JMenuItem("View Slots");
-        JMenuItem addMenuItem = new JMenuItem("Add Slot");
-        JMenuItem remove = new JMenuItem("Remove Slot");
-        JMenuItem exit = new JMenuItem("Exit");
-
-        JMenu files = new JMenu("File");
-        JMenu edit = new JMenu("Edit");
-        JMenu help = new JMenu("Help");
-        JMenuItem settings = new JMenuItem("Settings");
-        files.add(view);
-        edit.add(addMenuItem);
-        edit.add(remove);
-        help.add(exit);
-
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.add(files);
-        menuBar.add(edit);
-        menuBar.add(help);
-        menuBar.setBackground(new Color(188,211,105));
-        toolBar.setBackground(new Color(188, 211, 105));
-
-        addMenuItem.addActionListener(e -> {
-            String plate = plateField.getText().trim();
-            if (!plate.isEmpty()) {
-                vehicleList.add(plate);
-                savePlateToFile(plate);
-                plateField.setText("");
-            }
-        });
-
-        remove.addActionListener(e -> {
-            String plate = plateField.getText().trim();
-            if (plate.isEmpty()) {
-                return;
-            }
-            boolean removed = removePlateFromFile(plate);
-            if (removed) {
-                vehicleList = readPlatesFromFile();
-            }
-        });
-
-        view.addActionListener(e -> {
-            ArrayList<String> list = readPlatesFromFile();
-            showVehicleList(list);
-        });
-
-        exit.addActionListener(e -> {
-            System.exit(0);
-        });
-
-
-
-        panel1.setLayout(new BorderLayout());
-        panel1.add(menuBar, BorderLayout.NORTH);
-        panel1.add(toolBar, BorderLayout.SOUTH);
-
-
+        // Dosyadan plakaları oku program açılırken
         vehicleList = readPlatesFromFile();
 
+        // Saat göstergesi
         Timer clockTimer = new Timer(1000, e -> {
             java.time.LocalTime now = java.time.LocalTime.now();
             java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -149,6 +95,7 @@ public class MainForm extends JFrame {
         });
         clockTimer.start();
 
+        // Add Vehicle butonu
         addVehicle.addActionListener(e -> {
             String plate = plateField.getText().trim();
             if (!plate.isEmpty()) {
@@ -158,36 +105,49 @@ public class MainForm extends JFrame {
             }
         });
 
+        // Remove Vehicle butonu
         removeVehicle.addActionListener(e -> {
             String plate = plateField.getText().trim();
             if (plate.isEmpty()) {
-                return;
+                return; // boşsa çık
             }
             boolean removed = removePlateFromFile(plate);
             if (removed) {
-                vehicleList = readPlatesFromFile();
+                vehicleList = readPlatesFromFile(); // listeyi güncelle
             }
         });
 
+        // View Slots butonu
         viewSlots.addActionListener(e -> {
             ArrayList<String> list = readPlatesFromFile();
             showVehicleList(list);
         });
 
-        searchButton.addActionListener(e -> openSearchWindow());
+        // Search butonu (işlevi sade)
+        searchButton.addActionListener(e -> {
+            String plate = plateField.getText().trim();
+            if (plate.isEmpty()) return;
+
+            ArrayList<String> list = readPlatesFromFile();
+            boolean found = list.stream().anyMatch(s -> s.equalsIgnoreCase(plate));
+            // Bulduysa veya bulamadıysa kullanıcıya mesaj verme (isteğe bağlı)
+        });
 
         setVisible(true);
     }
 
+    // Dosyaya plakayı ekle (append)
     private void savePlateToFile(String plate) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             bw.write(plate);
             bw.newLine();
         } catch (IOException ex) {
             ex.printStackTrace();
+            // İstersen hata mesajı gösterebilirsin
         }
     }
 
+    // Dosyadan plakaları oku
     private ArrayList<String> readPlatesFromFile() {
         ArrayList<String> list = new ArrayList<>();
         File f = new File(FILE_PATH);
@@ -207,6 +167,7 @@ public class MainForm extends JFrame {
         return list;
     }
 
+    // Dosyadan plaka sil (büyük/küçük harf duyarsız)
     private boolean removePlateFromFile(String plate) {
         ArrayList<String> list = readPlatesFromFile();
         boolean removed = list.removeIf(s -> s.equalsIgnoreCase(plate));
@@ -223,6 +184,7 @@ public class MainForm extends JFrame {
         return removed;
     }
 
+    // Listeyi yeni pencerede göster
     private void showVehicleList(ArrayList<String> list) {
         JFrame f = new JFrame("Vehicle List");
         f.setSize(400, 400);
@@ -235,63 +197,6 @@ public class MainForm extends JFrame {
         JScrollPane sp = new JScrollPane(jList);
         f.add(sp);
         f.setVisible(true);
-    }
-
-
-    private void openSearchWindow() {
-        JFrame searchFrame = new JFrame("Search Vehicles");
-        searchFrame.setSize(400, 400);
-        searchFrame.setLocationRelativeTo(this);
-        searchFrame.setLayout(null);
-
-        JTextField searchField = new JTextField();
-        searchField.setBounds(20, 20, 250, 30);
-        searchFrame.add(searchField);
-
-        JButton searchActionButton = new JButton("Search");
-        searchActionButton.setBounds(280, 20, 90, 30);
-        searchFrame.add(searchActionButton);
-
-        DefaultListModel<String> model = new DefaultListModel<>();
-        JList<String> resultList = new JList<>(model);
-        JScrollPane scrollPane = new JScrollPane(resultList);
-        scrollPane.setBounds(20, 70, 350, 250);
-        searchFrame.add(scrollPane);
-
-        searchActionButton.addActionListener(ev -> {
-            String query = searchField.getText().trim();
-            model.clear();
-
-            if (query.isEmpty()) return;
-
-            ArrayList<String> list = readPlatesFromFile();
-            for (String plate : list) {
-                if (matchesPattern(plate, query)) {
-                    model.addElement(plate);
-                }
-            }
-        });
-
-        searchFrame.setVisible(true);
-    }
-
-
-    private boolean matchesPattern(String plate, String pattern) {
-        String lowerPlate = plate.toLowerCase();
-        String lowerPattern = pattern.toLowerCase();
-
-        if (lowerPattern.startsWith("%") && lowerPattern.endsWith("%")) {
-            String keyword = lowerPattern.substring(1, lowerPattern.length() - 1);
-            return lowerPlate.contains(keyword);
-        } else if (lowerPattern.startsWith("%")) {
-            String keyword = lowerPattern.substring(1);
-            return lowerPlate.endsWith(keyword);
-        } else if (lowerPattern.endsWith("%")) {
-            String keyword = lowerPattern.substring(0, lowerPattern.length() - 1);
-            return lowerPlate.startsWith(keyword);
-        } else {
-            return lowerPlate.equals(lowerPattern);
-        }
     }
 
     public static void main(String[] args) {
